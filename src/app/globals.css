@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme{
+  --color-black-1: #000000;
+  --color-gray-1: #141414;
+  --color-gray-2: #212122;
+  --color-gray-3: #262628;
+  --color-gray-4: #3E3E40;
+  --color-gray-5: #919098;
+  --color-white-1: #F0F0EB;
+  --color-orange-1: #FE8330;
+
+ --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 26px;
+  --text-3xl: 32px;
+  --text-4xl: 48px;
+
+  --shadow-default: inset -4px -4px 4px rgba(0, 0, 0, 0.25), 4px 4px 4px rgba(0, 0, 0, 0.25);
+  --shadow-focus:inset 4px 4px 3px rgba(0, 0, 0, 0.25);
+  --shadow-input:inset 2px 4px 2px rgba(0, 0, 0, 0.25)
+}
+
+@plugin "tailwind-scrollbar";
+
+
+/* :root {
+  --background: #ffffff;
+  --foreground: #171717;
+} */
+
+/* @theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+} */
