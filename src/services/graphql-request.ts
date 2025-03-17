@@ -60,7 +60,22 @@ export const GET_ALL_PRODUCTS = gql`
 export const GET_PRODUCT_BY_ID = gql`
   query GetProductById($id: Float!) {
     getProductById(id: $id) {
+      brand {
+        name
+      }
+      color {
+        name
+      }
       id
+      isSold
+      location
+      model {
+        name
+      }
+      sale {
+        id
+      }
+      size
     }
   }
 `;
@@ -68,7 +83,22 @@ export const GET_PRODUCT_BY_ID = gql`
 export const SHOES_IN_STORE = gql`
   query ShoesInStore {
     shoesInStore {
+      brand {
+        name
+      }
+      color {
+        name
+      }
       id
+      isSold
+      location
+      model {
+        name
+      }
+      sale {
+        id
+      }
+      size
     }
   }
 `;
@@ -76,7 +106,22 @@ export const SHOES_IN_STORE = gql`
 export const SHOES_IN_WAREHOUSE = gql`
   query ShoesInWarehouse {
     shoesInWarehouse {
+      brand {
+        name
+      }
+      color {
+        name
+      }
       id
+      isSold
+      location
+      model {
+        name
+      }
+      sale {
+        id
+      }
+      size
     }
   }
 `;
@@ -84,7 +129,22 @@ export const SHOES_IN_WAREHOUSE = gql`
 export const SOLD_SHOES = gql`
   query SoldShoes {
     soldShoes {
+      brand {
+        name
+      }
+      color {
+        name
+      }
       id
+      isSold
+      location
+      model {
+        name
+      }
+      sale {
+        id
+      }
+      size
     }
   }
 `;
@@ -138,9 +198,73 @@ export const CREATE_PRODUCTS = gql`
 `;
 
 export const REGISTER_SALE = gql`
-  mutation RegisterSale($input: RegisterSaleInput!) {
-    registerSale(inputSaleInput: $inputSaleInput) {
+  mutation RegisterSale($input: RegisterSaleDto!) {
+    registerSale(input: $input) {
       id
+      buyerEmail
+      buyerId
+      buyerName
+      price
+      soldAt
+      products {
+        id
+        brand {
+          name
+        }
+        color {
+          name
+        }
+        model {
+          name
+        }
+        size
+        priceAtSale
+      }
+    }
+  }
+`;
+
+export const UPDATE_PRODUCTS_LOCATION = gql`
+  mutation UpdateProductsLocation($productIds: [String!]!, $location: String!) {
+    updateProductsLocation(productIds: $productIds, location: $location) {
+      id
+      brand {
+        name
+      }
+      color {
+        name
+      }
+      model {
+        name
+      }
+      size
+    }
+  }
+`;
+
+export const RETURN_PRODUCTS = gql`
+  mutation ReturnProduct($productIds: [String!]!) {
+    returnProduct(productIds: $productIds) {
+      id
+      buyerEmail
+      buyerId
+      buyerName
+      price
+      soldAt
+      products {
+        id
+        brand {
+          name
+        }
+        color {
+          name
+        }
+        model {
+          name
+        }
+        size
+        priceAtSale
+      }
     }
   }
 `;

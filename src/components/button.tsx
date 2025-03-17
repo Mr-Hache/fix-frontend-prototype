@@ -8,6 +8,7 @@ const Button: React.FC<ButtonProps> = ({
   text,
   disabled,
   state,
+  selected,
 }) => {
   return (
     <button
@@ -19,8 +20,16 @@ const Button: React.FC<ButtonProps> = ({
             } shadow-layout cursor-pointer`
       } ${
         state === 'primary'
-          ? `${loading ? 'bg-transparent' : 'bg-gray-3'} `
-          : `${loading ? 'bg-transparent' : 'bg-orange-1'}`
+          ? `${
+              loading
+                ? 'bg-transparent'
+                : ` ${selected ? 'bg-white-1' : 'bg-gray-3'}`
+            } `
+          : `${
+              loading
+                ? 'bg-transparent'
+                : ` ${selected ? 'bg-white-1' : 'bg-orange-1'}`
+            }`
       } p-2 px-3 sm:p-1.5 rounded-md font-semibold`}
       onClick={onClick}
       disabled={disabled}

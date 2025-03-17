@@ -67,6 +67,7 @@ export type ButtonProps = {
   loading: boolean;
   disabled: boolean;
   state: string;
+  selected?: boolean;
 };
 
 export type ModalAddProps = {
@@ -94,4 +95,26 @@ export type ItemSideMenuProps = {
   selected: boolean;
 };
 
-export type SaleProps = {};
+export type SaleProps = {
+  handleProducts: (
+    filter: 'all' | 'store' | 'warehouse' | 'sold'
+  ) => Promise<ProductsList[] | undefined | []>;
+
+  loadings: {
+    allProductsLoading: boolean;
+    shoesInStoreLoading: boolean;
+    shoesInWarehouseLoading: boolean;
+    soldShoesLoading: boolean;
+  };
+
+  errors: {
+    allProductsError: ApolloError | undefined;
+    shoesInStoreError: ApolloError | undefined;
+    shoesInWarehouseError: ApolloError | undefined;
+    soldShoesError: ApolloError | undefined;
+  };
+};
+
+export type ModalSaleProps = {
+  setShow: (value: boolean) => void;
+};
