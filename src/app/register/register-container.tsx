@@ -5,135 +5,177 @@ import {
   FIND_ALL_BRANDS,
   FIND_ALL_COLORS,
   FIND_ALL_MODELS,
-  GET_ALL_PRODUCTS,
-  GET_PRODUCT_BY_ID,
-  SHOES_IN_STORE,
-  SHOES_IN_WAREHOUSE,
-  SOLD_SHOES,
   CREATE_BRAND,
   CREATE_MODEL,
   CREATE_COLOR,
   CREATE_PRODUCTS,
 } from '../../services/graphql-request';
 import { useEffect } from 'react';
+import { Products, QRCodeData } from '../../resources/types/general-types';
+import { generateAndDownloadQRCodes } from '@/resources/functions';
+import { QRCode } from 'qrcode';
 
 const RegisterContainer = () => {
-  const { data: brands } = useQuery(FIND_ALL_BRANDS);
-  const { data: colors } = useQuery(FIND_ALL_COLORS);
-  const { data } = useQuery(FIND_ALL_MODELS);
-  const { data: products } = useQuery(GET_ALL_PRODUCTS);
-  const { data: shoesInStore } = useQuery(SHOES_IN_STORE);
-  const { data: shoesInWarehouse } = useQuery(SHOES_IN_WAREHOUSE);
-  const { data: soldShoes } = useQuery(SOLD_SHOES);
-  const { data: productById } = useQuery(GET_PRODUCT_BY_ID, {
-    variables: { id: 26642 },
-  });
+  const {
+    data: brands,
+    loading: brandsLoading,
+    error: brandsError,
+    refetch: refetchBrands,
+  } = useQuery(FIND_ALL_BRANDS);
+  const {
+    data: colors,
+    loading: colorsLoading,
+    error: colorsError,
+    refetch: refetchColors,
+  } = useQuery(FIND_ALL_COLORS);
+  const {
+    data: models,
+    loading: modelsLoading,
+    error: modelsError,
+    refetch: refetchModels,
+  } = useQuery(FIND_ALL_MODELS);
 
-  const [createModel] = useMutation(CREATE_MODEL);
-  const [createBrand] = useMutation(CREATE_BRAND);
-  const [createColor] = useMutation(CREATE_COLOR);
-  const [createProducts] = useMutation(CREATE_PRODUCTS);
+  const [
+    createModel,
+    { loading: createModelLoading, error: createModelError },
+  ] = useMutation(CREATE_MODEL);
+  const [
+    createBrand,
+    { loading: createBrandLoading, error: createBrandError },
+  ] = useMutation(CREATE_BRAND);
+  const [
+    createColor,
+    { loading: createColorLoading, error: createColorError },
+  ] = useMutation(CREATE_COLOR);
+  const [
+    createProducts,
+    { loading: createProductsLoading, error: createProductsError },
+  ] = useMutation(CREATE_PRODUCTS);
 
-  useEffect(() => {
-    createProducts({
-      variables: {
-        createProductInput: {
-          products: [
-            {
-              brand: 'Puma',
-              model: 'Timon',
-              color: 'Scarlet',
-              pares: 10,
-              size: 48,
+  const handleCreate = async (name: string, value: string) => {
+    if (name === 'marca') {
+      try {
+        const response = await createBrand({
+          variables: {
+            createBrandInput: {
+              name: value,
             },
-          ],
-        },
-      },
-    });
-  }, [createProducts]);
-
-  useEffect(() => {
-    createBrand({
-      variables: {
-        createBrandInput: {
-          name: 'Puma', // El campo `name` debe estar dentro de `input`
-        },
-      },
-    });
-  }, [createBrand]);
-
-  useEffect(() => {
-    createModel({
-      variables: {
-        createModelInput: {
-          name: 'Timon', // El campo `name` debe estar dentro de `input`
-        },
-      },
-    });
-  }, [createModel]);
-
-  useEffect(() => {
-    createColor({
-      variables: {
-        createColorInput: {
-          name: 'Scarlet', // El campo `name` debe estar dentro de `input`
-        },
-      },
-    });
-  }, [createColor]);
-
-  useEffect(() => {
-    createProducts({
-      variables: {
-        products: [
-          {
-            brand: 'Puma',
-            model: 'Timon',
-            color: 'Scarlet',
-            pares: 10,
-            size: '48',
           },
-        ],
-      },
-    });
-  }, [createProducts]);
+        });
 
-  useEffect(() => {
-    console.log('brands', brands);
-  }, [brands]);
+        if (response.data) {
+          refetchBrands();
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
+    }
 
-  useEffect(() => {
-    console.log('colors', colors);
-  }, [colors]);
+    if (name === 'modelo') {
+      try {
+        const response = await createModel({
+          variables: {
+            createModelInput: {
+              name: value,
+            },
+          },
+        });
 
-  useEffect(() => {
-    console.log('models', data);
-  }, [data]);
+        if (response.data) {
+          refetchModels();
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
+    }
 
-  useEffect(() => {
-    console.log('products', products);
-  }, [products]);
+    if (name === 'color') {
+      try {
+        const response = await createColor({
+          variables: {
+            createColorInput: {
+              name: value,
+            },
+          },
+        });
 
-  useEffect(() => {
-    console.log('shoesInStore', shoesInStore);
-  }, [shoesInStore]);
+        if (response.data) {
+          refetchColors();
+        }
+      } catch (error) {
+        console.log('error', error);
+      }
+    }
+  };
 
-  useEffect(() => {
-    console.log('shoesInWarehouse', shoesInWarehouse);
-  }, [shoesInWarehouse]);
+  const handleCreateProducts = async (products: Products[]) => {
+    try {
+      const response = await createProducts({
+        variables: {
+          products,
+        },
+      });
 
-  useEffect(() => {
-    console.log('soldShoes', soldShoes);
-  }, [soldShoes]);
+      if (response.data) {
+        const qrCodeData: QRCodeData[] = response.data.createProducts.map(
+          (product: {
+            id: string;
+            brand: { name: string };
+            model: { name: string };
+            color: { name: string };
+            size: number;
+          }) => {
+            return {
+              id: product.id,
+              size: product.size,
+              brand: {
+                name: product.brand.name,
+              },
+              model: {
+                name: product.model.name,
+              },
+              color: {
+                name: product.color.name,
+              },
+            };
+          }
+        );
 
-  useEffect(() => {
-    console.log('productById', productById);
-  }, [productById]);
+        await generateAndDownloadQRCodes(qrCodeData);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
 
   return (
-    <div>
-      <RegisterPresentation />
-    </div>
+    <>
+      <RegisterPresentation
+        brands={brands?.findAllBrands}
+        colors={colors?.findAllColors}
+        models={models?.findAllModels}
+        loadings={{
+          brandsLoading,
+          colorsLoading,
+          modelsLoading,
+          createModelLoading,
+          createBrandLoading,
+          createColorLoading,
+          createProductsLoading,
+        }}
+        errors={{
+          brandsError,
+          colorsError,
+          modelsError,
+          createModelError,
+          createBrandError,
+          createColorError,
+          createProductsError,
+        }}
+        handleCreate={handleCreate}
+        handleCreateProducts={handleCreateProducts}
+      />
+    </>
   );
 };
 

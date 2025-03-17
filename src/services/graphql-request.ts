@@ -122,6 +122,17 @@ export const CREATE_PRODUCTS = gql`
   mutation CreateProducts($products: [CreateProductDto!]!) {
     createProducts(products: $products) {
       id
+      brand {
+        name
+      }
+
+      color {
+        name
+      }
+      model {
+        name
+      }
+      size
     }
   }
 `;

@@ -21,7 +21,8 @@
 
   --shadow-default: inset -4px -4px 4px rgba(0, 0, 0, 0.25), 4px 4px 4px rgba(0, 0, 0, 0.25);
   --shadow-focus:inset 4px 4px 3px rgba(0, 0, 0, 0.25);
-  --shadow-input:inset 2px 4px 2px rgba(0, 0, 0, 0.25)
+  --shadow-input:inset 2px 4px 2px rgba(0, 0, 0, 0.25);
+  --shadow-layout: 0px 3px 3px rgba(0, 0, 0, 0.25);
 }
 
 @plugin "tailwind-scrollbar";

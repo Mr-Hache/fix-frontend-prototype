@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.4",
+    "file-saver": "^2.0.5",
     "graphql": "^16.10.0",
+    "jszip": "^3.10.1",
     "material-icons": "^1.13.14",
     "next": "15.2.1",
+    "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-device-detect": "^2.2.3",
@@ -22,7 +25,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
