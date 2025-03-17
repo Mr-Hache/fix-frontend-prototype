@@ -60,7 +60,7 @@ const SalePresentation: React.FC<SaleProps> = ({
               >
                 {showMenu ? 'menu_open' : 'menu'}
               </span>
-              <h1 className="font-bold text-xl sm:text-2xl">Venta</h1>
+              <h1 className="font-bold text-xl sm:text-2xl">Inventario</h1>
             </div>
             <Image
               src="/icons/fix-icon.png"

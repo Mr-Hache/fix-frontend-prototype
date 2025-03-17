@@ -12,32 +12,41 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
   const [buyerName, setBuyerName] = useState('');
   const [buyerId, setBuyerId] = useState('');
   const [products, setProducts] = useState<ProductSale[]>([]);
-  [];
-
-  const [scannedCode, setScannedCode] = useState('');
 
   useEffect(() => {
+    let barcode = ''; // Buffer para capturar el código
+
     const handleScan = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && scannedCode.trim() !== '') {
-        setProducts([...products, { id: scannedCode.trim(), price: '' }]);
-        setScannedCode('');
+      if (event.key === 'Enter') {
+        if (barcode.trim() !== '') {
+          const scannedProduct = JSON.parse(barcode); // Convertimos el string a objeto
+
+          setProducts(prev => [
+            ...prev,
+            { id: scannedProduct.id, price: '' }, // Solo guardamos el ID
+          ]);
+
+          barcode = ''; // Reiniciamos el buffer
+        }
       } else {
-        setScannedCode(prev => prev + event.key);
+        barcode += event.key;
       }
     };
 
     window.addEventListener('keydown', handleScan);
     return () => window.removeEventListener('keydown', handleScan);
-  }, [scannedCode, products]);
+  }, []);
 
   const handleProductChange = (
     index: number,
     field: keyof ProductSale,
     value: string
   ) => {
-    const updatedProducts = [...products];
-    updatedProducts[index] = { ...updatedProducts[index], [field]: value };
-    setProducts(updatedProducts);
+    setProducts(prev => {
+      const updatedProducts = [...prev];
+      updatedProducts[index] = { ...updatedProducts[index], [field]: value };
+      return updatedProducts;
+    });
   };
 
   const handleSubmit = async () => {
@@ -113,14 +122,20 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
               />
             </div>
           ))}
-          <div className="flex w-full items-center justify-center">
+          <div className="flex w-full items-center justify-center ">
             <Button
               text="Registrar Venta"
               loading={loading}
               state="secondary"
-              disabled={loading}
+              disabled={
+                loading ||
+                !buyerEmail ||
+                !buyerName ||
+                !buyerId ||
+                !products.length
+              }
               onClick={handleSubmit}
-            ></Button>
+            />
           </div>
         </form>
         {error && <p className="text-red-500 mt-2">{error.message}</p>}
