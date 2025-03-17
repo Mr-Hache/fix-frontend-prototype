@@ -12,30 +12,68 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
   const [buyerName, setBuyerName] = useState('');
   const [buyerId, setBuyerId] = useState('');
   const [products, setProducts] = useState<ProductSale[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    let barcode = ''; // Buffer para capturar el código
-
+    let barcode = ""; // Buffer para capturar el código
+    let scanTimeout: NodeJS.Timeout | null = null;
+  
     const handleScan = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        if (barcode.trim() !== '') {
-          const scannedProduct = JSON.parse(barcode); // Convertimos el string a objeto
-
-          setProducts(prev => [
-            ...prev,
-            { id: scannedProduct.id, price: '' }, // Solo guardamos el ID
-          ]);
-
-          barcode = ''; // Reiniciamos el buffer
-        }
-      } else {
+      event.preventDefault(); // Evita activaciones accidentales de botones
+  
+      // 🔹 Evitar interferencias con inputs
+      if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        return;
+      }
+  
+      // 🔹 Filtrar solo caracteres imprimibles (evita teclas como Shift, Control, etc.)
+      if (event.key.length === 1) {
         barcode += event.key;
       }
+  
+      // 🔹 Reiniciar temporizador: cuando pasan 100ms sin más teclas, procesamos el código
+      if (scanTimeout) clearTimeout(scanTimeout);
+      scanTimeout = setTimeout(() => {
+        if (barcode) {
+          console.log("Código escaneado (bruto):", barcode);
+  
+          // 🔹 Eliminar caracteres no deseados
+          barcode = barcode.replace(/(Control|AltGraph|Shift|Tab)/g, "").trim();
+          console.log("Código escaneado (limpio):", barcode);
+  
+          // 🔹 Convertir el código en JSON si es válido
+          let scannedProduct;
+          try {
+            scannedProduct = JSON.parse(barcode);
+          } catch {
+            scannedProduct = { id: barcode, price: "0" }; // 🔹 Asegurar estructura válida
+          }
+  
+          console.log("Producto escaneado:", scannedProduct);
+  
+          // 🔹 Validar que `id` existe
+          if (!scannedProduct || !scannedProduct.id) {
+            setErrorMessage("El código de barras no contiene un ID válido.");
+            barcode = ""; // Limpiar buffer
+            return;
+          }
+  
+          // 🔹 Asegurar que `price` siempre es un string
+          setProducts(prev => [
+            ...prev,
+            { id: scannedProduct.id, price: scannedProduct.price ? scannedProduct.price.toString() : "0" }
+          ]);
+  
+          barcode = ""; // 🔹 Reiniciar buffer
+        }
+      }, 100); // 🔹 Si en 100ms no llegan más teclas, se considera que terminó la lectura
     };
-
-    window.addEventListener('keydown', handleScan);
-    return () => window.removeEventListener('keydown', handleScan);
+  
+    window.addEventListener("keydown", handleScan);
+    return () => window.removeEventListener("keydown", handleScan);
   }, []);
+  
+  
 
   const handleProductChange = (
     index: number,
@@ -50,6 +88,21 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
   };
 
   const handleSubmit = async () => {
+    setErrorMessage(null); // Limpiamos mensajes de error anteriores
+
+    // Validar campos requeridos
+    if (!buyerEmail || !buyerName || !buyerId || !products.length) {
+      setErrorMessage('Por favor, complete todos los campos requeridos.');
+      return;
+    }
+
+    // Validar precios
+    const isValid = products.every(product => !isNaN(parseFloat(product.price)));
+    if (!isValid) {
+      setErrorMessage('Por favor, ingrese precios válidos para todos los productos.');
+      return;
+    }
+
     try {
       await registerSale({
         variables: {
@@ -68,6 +121,7 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
       setShow(false);
     } catch (err) {
       console.error(err);
+      setErrorMessage('Error al registrar la venta. Por favor, inténtelo de nuevo.');
     }
   };
 
@@ -75,7 +129,7 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
     <div className="fixed inset-0 flex items-center justify-center bg-white-1/30 backdrop-blur-sm">
       <div className="bg-gray-2 p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-lg font-bold mb-4">Registrar Venta</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <input
             type="email"
             placeholder="Correo del comprador"
@@ -108,23 +162,28 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
                 type="text"
                 value={product.id}
                 readOnly
-                className="w-1/2 p-2 border rounded bg-gray-200"
+                className="w-1/2 p-2 border rounded bg-gray-1/10"
+                placeholder="ID del producto"
               />
               <input
                 type="number"
                 placeholder="Precio"
                 value={product.price}
-                onChange={e =>
-                  handleProductChange(index, 'price', e.target.value)
-                }
+                onChange={e => handleProductChange(index, 'price', e.target.value)}
                 className="w-1/2 p-2 border rounded"
                 required
               />
             </div>
           ))}
-          <div className="flex w-full items-center justify-center ">
+
+          {/* Mensaje de error */}
+          {errorMessage && (
+            <p className="text-red-500 mt-2">{errorMessage}</p>
+          )}
+
+          <div className="flex w-full items-center justify-center">
             <Button
-              text="Registrar Venta"
+              text={loading ? 'Registrando...' : 'Registrar Venta'}
               loading={loading}
               state="secondary"
               disabled={
@@ -138,8 +197,18 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
             />
           </div>
         </form>
-        {error && <p className="text-red-500 mt-2">{error.message}</p>}
-        <button onClick={() => setShow(false)} className="mt-4 text-gray-500">
+
+        <button
+          onClick={() => {
+            if (buyerEmail || buyerName || buyerId || products.length) {
+              const confirmClose = confirm('¿Estás seguro de que quieres cerrar? Se perderán los datos ingresados.');
+              if (confirmClose) setShow(false);
+            } else {
+              setShow(false);
+            }
+          }}
+          className="mt-4 text-gray-500"
+        >
           Cerrar
         </button>
       </div>
