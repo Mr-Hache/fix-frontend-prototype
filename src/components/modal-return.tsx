@@ -61,7 +61,7 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
             return;
           }
 
-          setProductsId(prev => [...prev, scannedProduct.id]);
+          setProductsId(prev => [...prev, scannedProduct.id.toString()]);
 
           barcode = '';
         }
