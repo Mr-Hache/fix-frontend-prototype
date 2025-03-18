@@ -60,7 +60,7 @@ const ModalRelocate = ({ setShow }: ModalRelocateProps) => {
             setErrorMessage('El código de barras no contiene un ID válido.');
             barcode = '';
           } else {
-            setProductsId([...productsId, scannedProduct.id]);
+            setProductsId([...productsId, scannedProduct.id.toString()]);
             barcode = '';
           }
         }
