@@ -102,6 +102,12 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
             priceReturned += product.priceAtSale;
           }
         );
+        console.log(
+          'Productos devueltos con id: ' +
+            productsId +
+            'y costo total de: ' +
+            priceReturned
+        );
         alert(
           'Productos devueltos con id: ' +
             productsId +
@@ -122,7 +128,10 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
 
         <h3 className="font-semibold mt-2 ">Productos Escaneados</h3>
         {productsId.map((id, index) => (
-          <div key={index} className="flex justify-center space-x-2 mb-2">
+          <div
+            key={index}
+            className="flex justify-center items-center space-x-2 mb-2"
+          >
             <span>{id}</span>
             <span
               onClick={() => {
