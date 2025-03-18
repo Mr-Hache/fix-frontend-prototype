@@ -130,27 +130,127 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
     }
 
     try {
-      await registerSale({
+      const response = await registerSale({
         variables: {
           input: {
             buyerEmail,
             buyerName,
             buyerId,
             products: products.map(p => ({
-              id: p.id,
-              price: parseFloat(p.price),
+              id: p.id.toString(),
+              price: parseInt(p.price),
             })),
           },
         },
       });
-      alert('Venta registrada con éxito');
-      setShow(false);
+      if (response.data?.registerSale) {
+        alert('Venta registrada con éxito');
+        const invoiceContent = `
+        <html>
+          <head>
+       
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1, h2 { text-align: center; }
+              .invoice { width: 250px; margin: 0 auto;  padding: 10px; }
+              .invoice-header { text-align: center; }
+              .invoice-details { margin-top: 10px; }
+              .invoice-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+              .invoice-table th, .invoice-table td { border: 1px solid #000; padding: 5px; text-align: left; }
+              .invoice-total { margin-top: 10px; text-align: right; }
+              .invoice-footer { text-align: center; margin-top: 20px; }
+            </style>
+          </head>
+          <body>
+            <div class="invoice">
+              <div class="invoice-header">
+                <h2>RECIBO DE PAGO</h2>
+              </div>
+              <div class="invoice-details">
+                <p><strong>Fecha y hora:</strong> ${
+                  response.data.registerSale.soldAt
+                }</p>
+                <p><strong>Recibo No:</strong> ${
+                  response.data.registerSale.id
+                }</p>
+                <p><strong>Cliente:</strong> ${
+                  response.data.registerSale.buyerName
+                }</p>
+                <p><strong>Documento:</strong> ${
+                  response.data.registerSale.buyerId
+                }</p>
+              </div>
+              <table class="invoice-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Cant.</th>
+                    <th>Precio</th>
+                  </tr>
+                </thead>
+                <tbody>
+                ${response.data.registerSale.products
+                  .map(
+                    (product: {
+                      id: number;
+                      priceAtSale: number;
+                      brand: {
+                        name: string;
+                      };
+                      model: {
+                        name: string;
+                      };
+                      color: {
+                        name: string;
+                      };
+                      size: string;
+                    }) => `
+                      <tr>
+                        <td>${product.id}</td>
+                        <td>1</td> <!-- Asumiendo que la cantidad es siempre 1 -->
+                        <td>$${product.priceAtSale}</td>
+                      </tr>
+                    `
+                  )
+                  .join('')}
+                </tbody>
+              </table>
+              <div class="invoice-total">
+                <p><strong>TOTAL A PAGAR:</strong> $${
+                  response.data.registerSale.price
+                }</p>
+              </div>
+              <div class="invoice-footer">
+                <p>¡Somos Home Run!</p>
+                <p>¡Gracias por su compra!</p>
+                <p>=======================</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(invoiceContent);
+          printWindow.document.close();
+
+          // 🔹 Llamar al diálogo de impresión
+          printWindow.print();
+        }
+
+        setShow(false);
+      }
     } catch (err) {
       console.error(err);
       setErrorMessage(
         'Error al registrar la venta. Por favor, inténtelo de nuevo.'
       );
     }
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    setProducts(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -208,15 +308,34 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
                 className="w-1/2 p-2 border rounded"
                 required
               />
+              <span
+                onClick={() => handleRemoveProduct(index)}
+                className="p-2 material-icons cursor-pointer"
+              >
+                delete
+              </span>
             </div>
           ))}
 
           {/* Mensaje de error */}
           {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
 
-          <div className="flex w-full items-center justify-center">
+          <div className="flex w-full items-center justify-between mt-4">
+            <span
+              onClick={event => {
+                setIsScannerActive(prev => !prev);
+
+                // 🔹 Quitar el foco del botón después de activarlo/desactivarlo
+                setTimeout(() => {
+                  (event.target as HTMLElement).blur();
+                }, 10);
+              }}
+              className="p-2 bg-gray-4 text-white-1 rounded-md cursor-pointer"
+            >
+              {isScannerActive ? 'Desactivar Escáner' : 'Activar Escáner'}
+            </span>
             <Button
-              text={loading ? 'Registrando...' : 'Registrar Venta'}
+              text={'Registrar Venta'}
               loading={loading}
               state="secondary"
               disabled={
@@ -232,20 +351,6 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
         </form>
 
         <button
-          onClick={event => {
-            setIsScannerActive(prev => !prev);
-
-            // 🔹 Quitar el foco del botón después de activarlo/desactivarlo
-            setTimeout(() => {
-              (event.target as HTMLElement).blur();
-            }, 10);
-          }}
-          className="p-2 bg-blue-500 text-white"
-        >
-          {isScannerActive ? 'Desactivar Escáner' : 'Activar Escáner'}
-        </button>
-
-        <button
           onClick={() => {
             if (buyerEmail || buyerName || buyerId || products.length) {
               const confirmClose = confirm(
@@ -256,7 +361,7 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
               setShow(false);
             }
           }}
-          className="mt-4 text-gray-500"
+          className="mt-4 cursor-pointer"
         >
           Cerrar
         </button>

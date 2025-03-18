@@ -118,3 +118,7 @@ export type SaleProps = {
 export type ModalSaleProps = {
   setShow: (value: boolean) => void;
 };
+
+export type ModalReturnProps = {
+  setShow: (value: boolean) => void;
+};

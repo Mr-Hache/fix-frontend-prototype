@@ -5,6 +5,7 @@ import Button from '@/components/button';
 import { SaleProps } from '@/resources/types/props';
 import { ProductsList } from '@/resources/types/general-types';
 import ModalSale from '@/components/modal-sale';
+import ModalReturn from '@/components/modal-return';
 
 const SalePresentation: React.FC<SaleProps> = ({
   handleProducts,
@@ -12,6 +13,7 @@ const SalePresentation: React.FC<SaleProps> = ({
   errors,
 }) => {
   const [showModalSale, setShowModalSale] = useState(false);
+  const [showModalReturn, setShowModalReturn] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [filter, setFilter] = useState<'all' | 'store' | 'warehouse' | 'sold'>(
@@ -43,6 +45,7 @@ const SalePresentation: React.FC<SaleProps> = ({
 
   return (
     <>
+      {showModalReturn && <ModalReturn setShow={setShowModalReturn} />}
       {showModalSale && <ModalSale setShow={setShowModalSale} />}
       <SideMenu setShowMenu={setShowMenu} showMenu={showMenu} />
       <div className="flex items-center justify-start overflow-hidden flex-col w-screen h-dvh p-3 space-y-3">
@@ -81,7 +84,7 @@ const SalePresentation: React.FC<SaleProps> = ({
               ></Button>
               <Button
                 text="Devolución"
-                onClick={() => console.log('Devolución')}
+                onClick={() => setShowModalReturn(true)}
                 state="primary"
                 loading={false}
                 disabled={false}
@@ -142,9 +145,9 @@ const SalePresentation: React.FC<SaleProps> = ({
             />
           </div>
         </div>
-        <div className="flex w-full  h-full max-h-full  justify-center md:w-10/12 lg:w-9/12 xl:w-8/12 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-1/40 scrollbar-track-gray-1">
-          <div className="flex w-full h-full max-h-full  ">
-            <table className="w-full max-h-full ">
+        <div className="flex w-full   max-h-full  justify-start md:w-10/12 lg:w-9/12 xl:w-8/12 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-1/40 scrollbar-track-gray-1">
+          <div className="flex w-full  max-h-full ">
+            <table className="w-full  ">
               <thead>
                 <tr className="bg-gray-2">
                   <th className=" p-2 rounded-md ">ID</th>
@@ -154,7 +157,7 @@ const SalePresentation: React.FC<SaleProps> = ({
                   <th className="p-2 rounded-md">Talla</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="">
                 {(searchValue.trim() ? productsListFiltered : productList)?.map(
                   product => (
                     <tr key={product.id} className=" ">
