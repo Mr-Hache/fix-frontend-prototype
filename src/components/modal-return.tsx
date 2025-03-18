@@ -120,9 +120,9 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
       <div className="bg-gray-2 p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-lg font-bold mb-4">Registrar Devolución</h2>
 
-        <h3 className="font-semibold mt-2">Productos Escaneados</h3>
+        <h3 className="font-semibold mt-2 ">Productos Escaneados</h3>
         {productsId.map((id, index) => (
-          <div key={index} className="flex space-x-2 mb-2">
+          <div key={index} className="flex justify-center space-x-2 mb-2">
             <span>{id}</span>
             <span
               onClick={() => {
@@ -130,7 +130,7 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
                   prev.filter(productId => productId !== id)
                 );
               }}
-              className="p-2 material-icons cursor-pointer material-icons"
+              className="p-1 material-icons cursor-pointer material-icons"
             >
               delete
             </span>
