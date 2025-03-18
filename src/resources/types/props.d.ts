@@ -122,3 +122,7 @@ export type ModalSaleProps = {
 export type ModalReturnProps = {
   setShow: (value: boolean) => void;
 };
+
+export type ModalRelocateProps = {
+  setShow: (value: boolean) => void;
+};

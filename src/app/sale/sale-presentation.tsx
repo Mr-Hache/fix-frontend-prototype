@@ -6,6 +6,7 @@ import { SaleProps } from '@/resources/types/props';
 import { ProductsList } from '@/resources/types/general-types';
 import ModalSale from '@/components/modal-sale';
 import ModalReturn from '@/components/modal-return';
+import ModalRelocate from '@/components/modal-relocate';
 
 const SalePresentation: React.FC<SaleProps> = ({
   handleProducts,
@@ -15,6 +16,7 @@ const SalePresentation: React.FC<SaleProps> = ({
   const [showModalSale, setShowModalSale] = useState(false);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showModalRelocate, setShowModalRelocate] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [filter, setFilter] = useState<'all' | 'store' | 'warehouse' | 'sold'>(
     'store'
@@ -45,6 +47,7 @@ const SalePresentation: React.FC<SaleProps> = ({
 
   return (
     <>
+      {showModalRelocate && <ModalRelocate setShow={setShowModalRelocate} />}
       {showModalReturn && <ModalReturn setShow={setShowModalReturn} />}
       {showModalSale && <ModalSale setShow={setShowModalSale} />}
       <SideMenu setShowMenu={setShowMenu} showMenu={showMenu} />
@@ -92,7 +95,7 @@ const SalePresentation: React.FC<SaleProps> = ({
 
               <Button
                 text="Reubicación"
-                onClick={() => console.log('Reubicación')}
+                onClick={() => setShowModalRelocate(true)}
                 state="primary"
                 loading={false}
                 disabled={false}
