@@ -84,7 +84,7 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
           productIds: productsId,
         },
       });
-      if (response.data?.returnProducts) {
+      if (response.data?.returnProduct) {
         setReturnMessage('Productos devueltos correctamente.');
         setProductsId([]);
         const productsReturned = response.data.returnProduct.products;
@@ -102,16 +102,11 @@ const ModalReturn: React.FC<ModalReturnProps> = ({ setShow }) => {
             priceReturned += product.priceAtSale;
           }
         );
-        console.log(
-          'Productos devueltos con id: ' +
-            productsId +
-            'y costo total de: ' +
-            priceReturned
-        );
+
         alert(
           'Productos devueltos con id: ' +
             productsId +
-            'y costo total de: ' +
+            ' y costo total de: $' +
             priceReturned
         );
       }
