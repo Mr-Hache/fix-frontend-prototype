@@ -167,8 +167,18 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
                 <h2>RECIBO DE PAGO</h2>
               </div>
               <div class="invoice-details">
-                <p><strong>Fecha y hora:</strong> ${
-                  response.data.registerSale.soldAt
+                <p><strong>Fecha y hora:</strong> ${response.data.registerSale.soldAt.toLocaleDateString(
+                  'es-ES',
+                  {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  }
+                )}
                 }</p>
                 <p><strong>Recibo No:</strong> ${
                   response.data.registerSale.id
@@ -183,9 +193,10 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
               <table class="invoice-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <th>Mod.</th>
+                    <th>Tall.</th>
                     <th>Cant.</th>
-                    <th>Precio</th>
+                    <th>Prec.</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -206,7 +217,8 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
                       size: string;
                     }) => `
                       <tr>
-                        <td>${product.id}</td>
+                        <td>${product.model.name}</td>
+                        <td>${product.size}</td>
                         <td>1</td> <!-- Asumiendo que la cantidad es siempre 1 -->
                         <td>$${product.priceAtSale}</td>
                       </tr>
@@ -223,6 +235,7 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
               <div class="invoice-footer">
                 <p>¡Somos Home Run!</p>
                 <p>¡Gracias por su compra!</p>
+                <p>fix2k25@gmail.com</p>
                 <p>=======================</p>
               </div>
             </div>

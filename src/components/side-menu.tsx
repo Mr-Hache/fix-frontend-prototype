@@ -51,7 +51,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ setShowMenu, showMenu }) => {
                 onClick={() => handleClick('register')}
               />
               <ItemSideMenu
-                title="Venta de mercancía"
+                title="Inventario"
                 selected={pathname === '/sale'}
                 iconName="store"
                 onClick={() => handleClick('sale')}

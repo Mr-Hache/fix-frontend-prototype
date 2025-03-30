@@ -142,6 +142,7 @@ export const SOLD_SHOES = gql`
         name
       }
       sale {
+        soldAt
         id
       }
       size

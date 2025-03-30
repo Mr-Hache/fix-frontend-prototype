@@ -37,6 +37,10 @@ export type ProductsList = {
 
   location: string;
   isSold: boolean;
+  sale?: {
+    id: string;
+    soldAt: string;
+  };
 };
 
 export type ProductQueryList = {

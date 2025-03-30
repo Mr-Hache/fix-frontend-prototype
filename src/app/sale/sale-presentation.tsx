@@ -18,9 +18,11 @@ const SalePresentation: React.FC<SaleProps> = ({
   const [showMenu, setShowMenu] = useState(false);
   const [showModalRelocate, setShowModalRelocate] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [countItems, setCountItems] = useState<null | number>(null);
   const [filter, setFilter] = useState<'all' | 'store' | 'warehouse' | 'sold'>(
-    'store'
+    'warehouse'
   );
+  const [sizeFilter, setSizeFilter] = useState<string>('');
   const [productList, setProductList] = useState<ProductsList[] | undefined>(
     []
   );
@@ -37,13 +39,30 @@ const SalePresentation: React.FC<SaleProps> = ({
   }, [filter]);
 
   useEffect(() => {
-    if (searchValue.trim() !== '') {
-      const filtered = productList?.filter(product =>
-        product.model.name.toLowerCase().includes(searchValue.toLowerCase())
-      );
+    if (searchValue.trim() !== '' || sizeFilter !== '') {
+      const filtered = productList?.filter(product => {
+        const matchesModel = product.model.name
+          .toLowerCase()
+          .includes(searchValue.toLowerCase());
+        const matchesSize =
+          sizeFilter === '' || product.size.toString() === sizeFilter;
+        return matchesModel && matchesSize;
+      });
+
+      if (filtered) {
+        setCountItems(filtered?.length || 0);
+      }
+
       setProductsListFiltered(filtered);
+    } else if (productList) {
+      setCountItems(productList.length);
+      setProductsListFiltered(productList);
     }
-  }, [searchValue, productList]);
+  }, [searchValue, sizeFilter, productList]);
+
+  // useEffect(() => {
+  //   console.log('Product List:', productList);
+  // }, [productList]);
 
   return (
     <>
@@ -114,21 +133,22 @@ const SalePresentation: React.FC<SaleProps> = ({
               selected={filter === 'all'}
             />
             <Button
-              text="Tienda"
-              onClick={() => setFilter('store')}
-              state="secondary"
-              loading={loadings.shoesInStoreLoading}
-              disabled={loadings.shoesInStoreLoading}
-              selected={filter === 'store'}
-            />
-            <Button
-              text="Almacén"
+              text="Bodega"
               onClick={() => setFilter('warehouse')}
               state="secondary"
               loading={loadings.shoesInWarehouseLoading}
               disabled={loadings.shoesInWarehouseLoading}
               selected={filter === 'warehouse'}
             />
+            <Button
+              text="Local"
+              onClick={() => setFilter('store')}
+              state="secondary"
+              loading={loadings.shoesInStoreLoading}
+              disabled={loadings.shoesInStoreLoading}
+              selected={filter === 'store'}
+            />
+
             <Button
               text="Vendidos"
               onClick={() => setFilter('sold')}
@@ -138,15 +158,29 @@ const SalePresentation: React.FC<SaleProps> = ({
               selected={filter === 'sold'}
             />
           </div>
-          <div className="w-full sm:w-auto">
+          <div className="w-full flex sm:space-y-0 sm:space-x-2 space-y-2 sm:w-auto flex-col sm:flex-row">
             <input
               type="text"
-              placeholder="Buscar..."
+              placeholder="Ej: Gores..."
               value={searchValue}
               onChange={e => setSearchValue(e.target.value)}
               className="w-full p-2 border border-gray-4 rounded-md outline-none"
+            />{' '}
+            <input
+              type="text"
+              placeholder="Ej: 42..."
+              value={sizeFilter}
+              onChange={e => setSizeFilter(e.target.value)}
+              className="w-full p-2 border border-gray-4 rounded-md outline-none"
             />
           </div>
+          {countItems !== null && (
+            <div className="flex items-center justify-center">
+              <span className="text-gray-500">
+                Número de productos: {countItems}
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex w-full   max-h-full  justify-start md:w-10/12 lg:w-9/12 xl:w-8/12 overflow-y-auto scrollbar-thin scrollbar-thumb-orange-1/40 scrollbar-track-gray-1">
           <div className="flex w-full  max-h-full ">
@@ -158,6 +192,9 @@ const SalePresentation: React.FC<SaleProps> = ({
                   <th className=" p-2 rounded-md">Modelo</th>
                   <th className="p-2 rounded-md">Color</th>
                   <th className="p-2 rounded-md">Talla</th>
+                  {filter === 'sold' && (
+                    <th className="p-2 rounded-md">Fecha de venta</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="">
@@ -179,6 +216,21 @@ const SalePresentation: React.FC<SaleProps> = ({
                       <td className="border-b border-gray-300 p-2 text-center">
                         {product.size}
                       </td>
+                      {filter === 'sold' && (
+                        <td className="border-b border-gray-300 p-2 text-center">
+                          {new Date(
+                            product.sale?.soldAt || ''
+                          ).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                          })}
+                        </td>
+                      )}
                     </tr>
                   )
                 )}
