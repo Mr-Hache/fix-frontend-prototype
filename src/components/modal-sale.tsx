@@ -145,6 +145,7 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
       });
       if (response.data?.registerSale) {
         alert('Venta registrada con éxito');
+        console.log('Venta registrada:', response.data.registerSale);
         const invoiceContent = `
         <html>
           <head>
@@ -167,19 +168,18 @@ const ModalSale: React.FC<ModalSaleProps> = ({ setShow }) => {
                 <h2>RECIBO DE PAGO</h2>
               </div>
               <div class="invoice-details">
-                <p><strong>Fecha y hora:</strong> ${response.data.registerSale.soldAt.toLocaleDateString(
-                  'es-ES',
-                  {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
+                <p><strong>Fecha y hora:</strong> ${new Date(
+                  response.data.registerSale.soldAt
+                ).toLocaleDateString('es-ES', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
 
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                  }
-                )}
-                }</p>
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                })}
+                </p>
                 <p><strong>Recibo No:</strong> ${
                   response.data.registerSale.id
                 }</p>
