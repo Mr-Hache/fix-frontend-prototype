@@ -33,11 +33,22 @@ const SalePresentation: React.FC<SaleProps> = ({
   useEffect(() => {
     const products = async () => {
       const response = await handleProducts(filter);
-      setProductList(response);
+      if (filter == 'sold' && response !== undefined) {
+        if (response?.length > 0) {
+          // Ordenar por fecha más reciente primero
+          const sortedProducts = [...response].sort((a, b) => {
+            const dateA = new Date(a.sale?.soldAt || 0);
+            const dateB = new Date(b.sale?.soldAt || 0);
+            return dateB.getTime() - dateA.getTime();
+          });
+          setProductList(sortedProducts);
+        }
+      } else {
+        setProductList(response);
+      }
     };
     products();
   }, [filter]);
-
   useEffect(() => {
     if (searchValue.trim() !== '' || sizeFilter !== '') {
       const filtered = productList?.filter(product => {
